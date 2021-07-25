@@ -1,0 +1,39 @@
+#!/usr/bin/php
+<?php
+
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di;
+use Kagestonedragon\TelegramAuthorizationSpammer\Providers;
+use Kagestonedragon\TelegramAuthorizationSpammer\Repositories;
+use Kagestonedragon\TelegramAuthorizationSpammer\Services;
+
+require_once(dirname(__DIR__) . '/src/Bootstrap/bootstrap.php');
+
+/** @var Repositories\ConfigurationRepositoryInterface $configurationRepository */
+$configurationRepository = Di::getInstance()->get(Providers\Repositories\ConfigurationRepositoryProvider::getId());
+
+/** @var Services\AuthorizationServiceInterface $authorizationService */
+$authorizationService = Di::getInstance()->get(Providers\Services\AuthorizationServiceProvider::getId());
+
+/** @var ContainerInterface $phoneFormattersContainer */
+$phoneFormattersContainer = Di::getInstance()->get(Providers\Formatters\PhoneFormattersProvider::getId());
+
+/** @var Command[] $commands */
+$commands = [
+    new Commands\AuthorizationCommand(
+        $configurationRepository,
+        $authorizationService,
+        $phoneFormattersContainer,
+    ),
+];
+
+$application = new Application();
+
+foreach ($commands as $command) {
+    $application->add($command);
+}
+
+$application->run();
