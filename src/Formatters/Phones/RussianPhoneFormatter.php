@@ -18,7 +18,23 @@ class RussianPhoneFormatter extends AbstractPhoneFormatter
     {
         $value = parent::format($value);
 
-        return '7' . substr($value, -10, 10);
+        return implode('', [
+            $this->getStartsWith(),
+            $this->getUsefullPiece($value)
+        ]);
+    }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    protected function getUsefullPiece(string $value): string
+    {
+        return substr(
+            $value,
+            $this->getMinimalCharacters() * (-1),
+            $this->getMinimalCharacters()
+        );
     }
 
     /**
@@ -27,6 +43,14 @@ class RussianPhoneFormatter extends AbstractPhoneFormatter
     protected function getMinimalCharacters(): int
     {
         return 10;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getStartsWith(): string
+    {
+        return '7';
     }
 
 }
