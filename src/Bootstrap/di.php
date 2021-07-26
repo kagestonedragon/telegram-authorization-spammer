@@ -6,7 +6,7 @@ use Kagestonedragon\TelegramAuthorizationSpammer\Providers;
 /** @var Providers\ProviderInterface[] $providers */
 $providers = [
     new Providers\Repositories\ConfigurationRepositoryProvider(),
-    new Providers\Services\AuthorizationServiceProvider(),
+    new Providers\Services\Telegram\AuthorizationServiceProvider(),
     new Providers\Formatters\PhoneFormattersProvider(),
 ];
 

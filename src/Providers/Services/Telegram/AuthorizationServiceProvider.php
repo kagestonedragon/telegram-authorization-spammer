@@ -1,6 +1,6 @@
 <?php
 
-namespace Kagestonedragon\TelegramAuthorizationSpammer\Providers\Services;
+namespace Kagestonedragon\TelegramAuthorizationSpammer\Providers\Services\Telegram;
 
 use GuzzleHttp\Client as GuzzleClient;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\AbstractProvider;
@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class AuthorizationServiceProvider
- * @package Kagestonedragon\TelegramAuthorizationSpammer\Providers\Services
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Providers\Services\Telegram
  */
 class AuthorizationServiceProvider extends AbstractProvider
 {

@@ -15,7 +15,7 @@ require_once(dirname(__DIR__) . '/src/Bootstrap/bootstrap.php');
 $configurationRepository = Di::getInstance()->get(Providers\Repositories\ConfigurationRepositoryProvider::getId());
 
 /** @var Services\Telegram\AuthorizationServiceInterface $authorizationService */
-$authorizationService = Di::getInstance()->get(Providers\Services\AuthorizationServiceProvider::getId());
+$authorizationService = Di::getInstance()->get(Providers\Services\Telegram\AuthorizationServiceProvider::getId());
 
 /** @var DependencyInjection\ContainerInterface $phoneFormattersContainer */
 $phoneFormattersContainer = Di::getInstance()->get(Providers\Formatters\PhoneFormattersProvider::getId());
