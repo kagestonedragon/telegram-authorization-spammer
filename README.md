@@ -19,14 +19,15 @@ If you didn't request this, use the 'Decline' button or ignore this message.
 ```bash
 git clone https://github.com/kagestonedragon/telegram-authorization-spammer.git && cd telegram-authorization-spammer
 ```
-2. Install dependencies via composer
+2. Install dependencies via `composer`
 ```bash
 composer install
 ```
-3. Set up environment variables in `.env`
+3. Chain your telegram bot with your domain
+4. Set up environment variables in `.env`
 5. Execute command with `php`
 ```bash
-/usr/bin/php bin/console --country RU --phones /home/admin/phones_list
+/usr/bin/php bin/console telegram:authorization_spam --country RU --phones /home/admin/phones_list
 ```
 
 ### Options

@@ -16,15 +16,16 @@ final class LoggerHelper
      * @param \Throwable $t
      * @param string $level
      */
-    public static function logException(LoggerInterface $logger, \Throwable $t, string $level = LogLevel::CRITICAL,): void
-    {
-        $message = sprintf(
+    public static function logException(
+        LoggerInterface $logger,
+        \Throwable $t,
+        string $level = LogLevel::CRITICAL,
+    ): void {
+        $logger->log($level, sprintf(
             "%s: %s. %s",
             $t::class,
             $t->getMessage(),
             $t->getTraceAsString()
-        );
-
-        $logger->log($level, $message);
+        ));
     }
 }

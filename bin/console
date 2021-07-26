@@ -1,9 +1,8 @@
 #!/usr/bin/php
 <?php
 
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Console;
+use Symfony\Component\DependencyInjection;
 use Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands;
 use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers;
@@ -15,22 +14,22 @@ require_once(dirname(__DIR__) . '/src/Bootstrap/bootstrap.php');
 /** @var Repositories\ConfigurationRepositoryInterface $configurationRepository */
 $configurationRepository = Di::getInstance()->get(Providers\Repositories\ConfigurationRepositoryProvider::getId());
 
-/** @var Services\AuthorizationServiceInterface $authorizationService */
+/** @var Services\Telegram\AuthorizationServiceInterface $authorizationService */
 $authorizationService = Di::getInstance()->get(Providers\Services\AuthorizationServiceProvider::getId());
 
-/** @var ContainerInterface $phoneFormattersContainer */
+/** @var DependencyInjection\ContainerInterface $phoneFormattersContainer */
 $phoneFormattersContainer = Di::getInstance()->get(Providers\Formatters\PhoneFormattersProvider::getId());
 
-/** @var Command[] $commands */
+/** @var Console\Command\Command[] $commands */
 $commands = [
-    new Commands\AuthorizationCommand(
+    new Commands\Telegram\AuthorizationSpamCommand(
         $configurationRepository,
         $authorizationService,
         $phoneFormattersContainer,
     ),
 ];
 
-$application = new Application();
+$application = new Console\Application();
 
 foreach ($commands as $command) {
     $application->add($command);

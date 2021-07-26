@@ -7,7 +7,7 @@ use Noodlehaus\Config;
 
 /**
  * Class ConfigurationRepository
- * @package Kagestonedragon\TelegramAuthorizationSpammer\Repository
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Repositories
  */
 class ConfigurationRepository implements ConfigurationRepositoryInterface
 {

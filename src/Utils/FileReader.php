@@ -1,12 +1,12 @@
 <?php
 
-namespace Kagestonedragon\TelegramAuthorizationSpammer\Utils\Files;
+namespace Kagestonedragon\TelegramAuthorizationSpammer\Utils;
 
 /**
- * Class Reader
- * @package Kagestonedragon\TelegramAuthorizationSpammer\Utils\Files
+ * Class FileReader
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Utils
  */
-final class Reader
+final class FileReader
 {
     /** @var resource $resource */
     private $resource;

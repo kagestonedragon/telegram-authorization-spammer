@@ -9,7 +9,7 @@ use League\ISO3166\ISO3166;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class PhoneFormatterProvider
+ * Class PhoneFormattersProvider
  * @package Kagestonedragon\TelegramAuthorizationSpammer\Providers\Formatters
  */
 class PhoneFormattersProvider extends AbstractProvider

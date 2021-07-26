@@ -5,6 +5,10 @@ namespace Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones;
 use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Exceptions\FormatterException;
 use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\FormatterInterface;
 
+/**
+ * Class AbstractPhoneFormatter
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones
+ */
 abstract class AbstractPhoneFormatter implements FormatterInterface
 {
     /**

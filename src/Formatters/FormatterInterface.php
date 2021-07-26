@@ -3,7 +3,6 @@
 namespace Kagestonedragon\TelegramAuthorizationSpammer\Formatters;
 
 /**
- * TODO вынести форматтеры в отдельный пакет
  * Interface FormatterInterface
  * @package Kagestonedragon\TelegramAuthorizationSpammer\Formatters
  */

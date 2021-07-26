@@ -6,7 +6,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\AbstractProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Repositories\ConfigurationRepositoryProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepositoryInterface;
-use Kagestonedragon\TelegramAuthorizationSpammer\Services\AuthorizationService;
+use Kagestonedragon\TelegramAuthorizationSpammer\Services\Telegram\AuthorizationService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

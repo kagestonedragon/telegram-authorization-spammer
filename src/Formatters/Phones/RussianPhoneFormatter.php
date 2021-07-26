@@ -3,8 +3,8 @@
 namespace Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones;
 
 /**
- * Class RuPhoneNumberFormatter
- * @package Kagestonedragon\TelegramAuthorizationSpammer\Formatters\PhoneNumbers
+ * Class RussianPhoneFormatter
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones
  */
 class RussianPhoneFormatter extends AbstractPhoneFormatter
 {

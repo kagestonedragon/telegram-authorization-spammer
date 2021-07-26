@@ -60,10 +60,11 @@ abstract class AbstractCommand extends Command
         $logger = new Logger($settings['name']);
 
         foreach ($settings['streams'] as $stream) {
-            $handler = (new StreamHandler($stream))->setFormatter(new LineFormatter(
-                $settings['formatter']['output'],
-                $settings['formatter']['datetime'],
-            ));
+            $handler = (new StreamHandler($stream))
+                ->setFormatter(new LineFormatter(
+                    $settings['formatter']['output'],
+                    $settings['formatter']['datetime'],
+                ));
 
             $logger->pushHandler($handler);
         }

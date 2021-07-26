@@ -1,14 +1,14 @@
 <?php
 
-namespace Kagestonedragon\TelegramAuthorizationSpammer\Services;
+namespace Kagestonedragon\TelegramAuthorizationSpammer\Services\Telegram;
 
 use GuzzleHttp\Client as GuzzleClient;
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepositoryInterface;
-use Kagestonedragon\TelegramAuthorizationSpammer\Services\Exceptions\RuntimeException;
+use Kagestonedragon\TelegramAuthorizationSpammer\Exceptions\RuntimeException;
 
 /**
  * Class AuthorizationService
- * @package Kagestonedragon\TelegramAuthorizationSpammer\Services
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Services\Telegram
  */
 class AuthorizationService implements AuthorizationServiceInterface
 {
@@ -34,9 +34,10 @@ class AuthorizationService implements AuthorizationServiceInterface
     /**
      * @param string $phone
      * @param string|null $userAgent
+     * @return bool
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function authorize(string $phone, ?string $userAgent = null): void
+    public function authorize(string $phone, ?string $userAgent = null): bool
     {
         $response = $this->guzzleClient->post(
             $this->configurationRepository->get('telegram.url'),
@@ -52,6 +53,8 @@ class AuthorizationService implements AuthorizationServiceInterface
         if ($body !== 'true') {
             throw new RuntimeException(sprintf('Telegram returned "%s" body', $body));
         }
+
+        return true;
     }
 
     /**

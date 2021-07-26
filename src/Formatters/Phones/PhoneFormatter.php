@@ -3,7 +3,7 @@
 namespace Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones;
 
 /**
- * Class DefaultPhoneFormatter
+ * Class PhoneFormatter
  * @package Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones
  */
 class PhoneFormatter extends AbstractPhoneFormatter

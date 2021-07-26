@@ -1,13 +1,14 @@
 <?php
 
-namespace Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands;
+namespace Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands\Telegram;
 
+use Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands\AbstractCommand;
 use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Exceptions\FormatterException;
 use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\FormatterInterface;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Formatters\PhoneFormattersProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepositoryInterface;
-use Kagestonedragon\TelegramAuthorizationSpammer\Services\AuthorizationServiceInterface;
-use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Files\Reader;
+use Kagestonedragon\TelegramAuthorizationSpammer\Services\Telegram\AuthorizationServiceInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\FileReader;
 use Kagestonedragon\TelegramAuthorizationSpammer\Utils\LoggerHelper;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Exception\InvalidOptionException;
@@ -18,10 +19,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
- * Class AuthorizationCommand
- * @package Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands
+ * Class AuthorizationSpamCommand
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands\Telegram
  */
-class AuthorizationCommand extends AbstractCommand
+class AuthorizationSpamCommand extends AbstractCommand
 {
     protected const LOGGER = 'telegram';
 
@@ -34,8 +35,8 @@ class AuthorizationCommand extends AbstractCommand
     /** @var FormatterInterface $phoneFormatter */
     protected FormatterInterface $phoneFormatter;
 
-    /** @var Reader $phonesReader */
-    protected Reader $phonesReader;
+    /** @var FileReader $phonesReader */
+    protected FileReader $phonesReader;
 
     /**
      * AuthorizationCommand constructor.
@@ -57,7 +58,7 @@ class AuthorizationCommand extends AbstractCommand
     protected function configure()
     {
         $this
-            ->setName('telegram:authorization')
+            ->setName('telegram:authorization_spam')
             ->setDescription('Spam')
             ->setHelp('https://github.com/kagestonedragon/telegram-authorization-spammer')
             ->addOption(
@@ -187,9 +188,9 @@ class AuthorizationCommand extends AbstractCommand
 
     /**
      * @param InputInterface $input
-     * @return Reader
+     * @return FileReader
      */
-    private function getPhonesReader(InputInterface $input): Reader
+    private function getPhonesReader(InputInterface $input): FileReader
     {
         $value = $input->getOption('phones');
 
@@ -197,7 +198,7 @@ class AuthorizationCommand extends AbstractCommand
             throw new InvalidOptionException('Invalid option value "phones"');
         }
 
-        $reader = new Reader($value);
+        $reader = new FileReader($value);
 
         $this->logger->info(sprintf('Reading phones from "%s"', $value));
 
