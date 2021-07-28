@@ -2,11 +2,11 @@
 
 namespace Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands;
 
+use Kagestonedragon\TelegramAuthorizationSpammer\Factories\LoggersFactoryInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Factories\LoggersFactoryProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepositoryInterface;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use Psr\Log\LoggerInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Loggers\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,8 +18,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 abstract class AbstractCommand extends Command
 {
-    protected const LOGGER = 'console';
-
     protected const LOGGER_OPTION_CODE = 'logger';
 
     /** @var LoggerInterface $logger */
@@ -47,6 +45,7 @@ abstract class AbstractCommand extends Command
                 'l',
                 InputOption::VALUE_OPTIONAL,
                 'Custom logger',
+                $this->getLoggerName()
             );
     }
 
@@ -56,31 +55,26 @@ abstract class AbstractCommand extends Command
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
-        $this->logger = $this->getLogger($input);
+        $this->logger = $this->getLoggerInstance($input->getOption(static::LOGGER_OPTION_CODE));
     }
 
     /**
-     * @param InputInterface $input
+     * @param string $name
      * @return LoggerInterface
      */
-    private function getLogger(InputInterface $input): LoggerInterface
+    private function getLoggerInstance(string $name): LoggerInterface
     {
-        $name = $input->getOption(static::LOGGER_OPTION_CODE) ?? static::LOGGER;
+        /** @var LoggersFactoryInterface $loggersFactory */
+        $loggersFactory = Di::getInstance()->get(LoggersFactoryProvider::getId());
 
-        $settings = $this->configurationRepository->get(sprintf("loggers.%s", $name));
+        return $loggersFactory->create($name);
+    }
 
-        $logger = new Logger($settings['name']);
-
-        foreach ($settings['streams'] as $stream) {
-            $handler = (new StreamHandler($stream))
-                ->setFormatter(new LineFormatter(
-                    $settings['formatter']['output'],
-                    $settings['formatter']['datetime'],
-                ));
-
-            $logger->pushHandler($handler);
-        }
-
-        return $logger;
+    /**
+     * @return string
+     */
+    protected function getLoggerName(): string
+    {
+        return $this->configurationRepository->get('application.default_logger');
     }
 }

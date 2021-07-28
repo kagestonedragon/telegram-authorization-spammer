@@ -9,7 +9,6 @@ use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Formatters\PhoneForma
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepositoryInterface;
 use Kagestonedragon\TelegramAuthorizationSpammer\Services\Telegram\AuthorizationServiceInterface;
 use Kagestonedragon\TelegramAuthorizationSpammer\Utils\FileReader;
-use Kagestonedragon\TelegramAuthorizationSpammer\Utils\LoggerHelper;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,8 +21,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 final class AuthorizationSpamCommand extends AbstractCommand
 {
-    protected const LOGGER = 'telegram';
-
     private const PHONES_LIST_OPTION_CODE = 'phones_list';
     private const USER_AGENTS_LIST_OPTION_CODE = 'user_agents_list';
     private const PROXIES_LIST_OPTION_CODE = 'proxies_list';
@@ -141,7 +138,7 @@ final class AuthorizationSpamCommand extends AbstractCommand
 
             $this->logger->info('End of executing');
         } catch (\Throwable $t) {
-            LoggerHelper::logException($this->logger, $t);
+            $this->logger->logException($t);
 
             return self::FAILURE;
         }
@@ -173,7 +170,7 @@ final class AuthorizationSpamCommand extends AbstractCommand
 
             $this->logger->info(sprintf('End of processing phone "%s"', $phone));
         } catch (FormatterException $e) {
-            LoggerHelper::logException($this->logger, $e, LogLevel::WARNING);
+            $this->logger->logException($e, LogLevel::WARNING);
         }
     }
 
@@ -191,5 +188,13 @@ final class AuthorizationSpamCommand extends AbstractCommand
     private function getProxy(): ?string
     {
         return array_rand_value($this->proxies);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getLoggerName(): string
+    {
+        return $this->configurationRepository->get('telegram.command.default_logger');
     }
 }

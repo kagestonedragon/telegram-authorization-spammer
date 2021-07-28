@@ -8,6 +8,7 @@ $providers = [
     new Providers\Repositories\ConfigurationRepositoryProvider(),
     new Providers\Services\Telegram\AuthorizationServiceProvider(),
     new Providers\Formatters\PhoneFormattersProvider(),
+    new Providers\Factories\LoggersFactoryProvider(),
 ];
 
 $di = Di::getInstance();
