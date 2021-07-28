@@ -27,11 +27,15 @@ composer install
 4. Set up environment variables in `.env`
 5. Execute command with `php`
 ```bash
-/usr/bin/php bin/console telegram:authorization_spam --country RU --phones /home/admin/phones_list
+/usr/bin/php bin/console telegram:authorization_spammer --country_code RU
 ```
 
 ### Options
-- `--phones` [`-p`] — path to file with phones list
-- `--country` [`-c`] — country code (_ISO-3166 Alpha 2_)
-- `--user_agents` [`-ua`] — path to file with user agents list
+- `--phones_list` [`-phl`] — path to file with phones list
+  - ***default*** — _/resources/phones_list_
+- `--user_agents_list` [`-ual`] — path to file with user agents list
+  - ***default*** — _/resources/user_agents_list_
+- `--proxies_list` [`-prl`]— path to file with proxies list
+  - ***default*** — _/resources/proxies_list_
+- `--country_code` [`-cc`] — country code (_ISO-3166 Alpha 2_)
 - `--logger` [`-l`] — custom logger from config
