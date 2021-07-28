@@ -5,7 +5,7 @@ namespace Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands\Telegram
 use Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands\AbstractCommand;
 use Kagestonedragon\TelegramAuthorizationSpammer\Factories\ReadersFactoryInterface;
 use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Exceptions\FormatterException;
-use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\FormatterInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones\PhoneFormatterInterface;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Factories\ReadersFactoryProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Formatters\PhoneFormattersProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Services\Telegram\AuthorizationServiceProvider;
@@ -32,8 +32,8 @@ final class AuthorizationSpamCommand extends AbstractCommand
     /** @var AuthorizationServiceInterface $authorizationService */
     private AuthorizationServiceInterface $authorizationService;
 
-    /** @var FormatterInterface $phonesFormatter */
-    private FormatterInterface $phonesFormatter;
+    /** @var PhoneFormatterInterface $phonesFormatter */
+    private PhoneFormatterInterface $phonesFormatter;
 
     /** @var ReaderInterface $phonesReader */
     private ReaderInterface $phonesReader;
@@ -57,7 +57,7 @@ final class AuthorizationSpamCommand extends AbstractCommand
                 'cc',
                 InputOption::VALUE_REQUIRED,
                 'County code (ISO-3166 Alpha 2)',
-                PhoneFormattersProvider::DEFAULT_FORMATTER_ID
+                PhoneFormattersProvider::getDefaultFormatter()::getCountryCode()
             )
             ->addOption(
                 self::PHONES_LIST_OPTION_CODE,
@@ -136,19 +136,11 @@ final class AuthorizationSpamCommand extends AbstractCommand
         try {
             $this->logger->info(sprintf('Start of processing phone "%s"', $phone));
 
-            $normalizedPhone = $this->phonesFormatter->format($phone);
-
-            $this->logger->info(sprintf('Normalized phone is "%s"', $normalizedPhone));
-
-            $this->logger->info('Authorization attempt');
-
             $this->authorizationService->authorize(
-                $normalizedPhone,
+                $this->phonesFormatter->format($phone),
                 $this->getUserAgent(),
                 $this->getProxy(),
             );
-
-            $this->logger->info('Success authorization');
 
             $this->logger->info(sprintf('End of processing phone "%s"', $phone));
         } catch (FormatterException $e) {

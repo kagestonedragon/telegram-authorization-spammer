@@ -3,13 +3,12 @@
 namespace Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones;
 
 use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Exceptions\FormatterException;
-use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\FormatterInterface;
 
 /**
  * Class AbstractPhoneFormatter
  * @package Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones
  */
-abstract class AbstractPhoneFormatter implements FormatterInterface
+abstract class AbstractPhoneFormatter implements PhoneFormatterInterface
 {
     /**
      * @param mixed $value
@@ -73,5 +72,10 @@ abstract class AbstractPhoneFormatter implements FormatterInterface
      * @return int
      */
     abstract protected function getMinimalCharacters(): int;
+
+    /**
+     * @return string
+     */
+    abstract public static function getCountryCode(): string;
 }
 

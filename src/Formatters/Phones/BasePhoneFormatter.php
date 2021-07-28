@@ -24,4 +24,12 @@ class BasePhoneFormatter extends AbstractPhoneFormatter
     {
         return 0;
     }
+
+    /**
+     * @return string
+     */
+    public static function getCountryCode(): string
+    {
+        return 'default';
+    }
 }

@@ -53,4 +53,12 @@ class RussianPhoneFormatter extends AbstractPhoneFormatter
         return '7';
     }
 
+    /**
+     * @return string
+     */
+    public static function getCountryCode(): string
+    {
+        return 'RU';
+    }
+
 }

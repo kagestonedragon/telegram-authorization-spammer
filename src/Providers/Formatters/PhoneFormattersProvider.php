@@ -6,7 +6,6 @@ use Kagestonedragon\TelegramAuthorizationSpammer\Formatters;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\AbstractProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\ContainerInterface;
 use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\Manager;
-use League\ISO3166\ISO3166;
 
 /**
  * Class PhoneFormattersProvider
@@ -14,8 +13,6 @@ use League\ISO3166\ISO3166;
  */
 class PhoneFormattersProvider extends AbstractProvider
 {
-    public const DEFAULT_FORMATTER_ID = 'default';
-
     /**
      * @param ContainerInterface $container
      * @return object
@@ -32,17 +29,29 @@ class PhoneFormattersProvider extends AbstractProvider
     }
 
     /**
-     * @return Formatters\FormatterInterface[]
+     * @return Formatters\Phones\PhoneFormatterInterface[]
      */
     protected function getMap(): array
     {
-        $iso = new ISO3166();
-
         return [
-            static::DEFAULT_FORMATTER_ID =>
-                new Formatters\Phones\BasePhoneFormatter(),
-            $iso->name('Russian Federation')[$iso::KEY_ALPHA2] =>
+            $this->getDefaultFormatter()::getCountryCode() =>
+                $this->getDefaultFormatter(),
+            Formatters\Phones\RussianPhoneFormatter::getCountryCode() =>
                 new Formatters\Phones\RussianPhoneFormatter(),
         ];
+    }
+
+    /**
+     * @return Formatters\Phones\PhoneFormatterInterface
+     */
+    public static function getDefaultFormatter(): Formatters\Phones\PhoneFormatterInterface
+    {
+        static $default;
+
+        if (empty($default)) {
+            $default = new Formatters\Phones\BasePhoneFormatter();
+        }
+
+        return $default;
     }
 }
