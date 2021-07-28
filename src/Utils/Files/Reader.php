@@ -4,6 +4,10 @@ namespace Kagestonedragon\TelegramAuthorizationSpammer\Utils\Files;
 
 use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Files\Exceptions\ReaderException;
 
+/**
+ * Class Reader
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Utils\Files
+ */
 class Reader implements ReaderInterface
 {
     /** @var resource $resource */

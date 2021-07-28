@@ -2,6 +2,10 @@
 
 namespace Kagestonedragon\TelegramAuthorizationSpammer\Utils\Files;
 
+/**
+ * Interface ReaderInterface
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Utils\Files
+ */
 interface ReaderInterface
 {
     /**
