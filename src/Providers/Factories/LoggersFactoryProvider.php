@@ -6,10 +6,18 @@ use Kagestonedragon\TelegramAuthorizationSpammer\Factories\LoggersFactory;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\AbstractProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Repositories\ConfigurationRepositoryProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepositoryInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\ContainerInterface;
 
+/**
+ * Class LoggersFactoryProvider
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Providers\Factories
+ */
 class LoggersFactoryProvider extends AbstractProvider
 {
+    /**
+     * @param ContainerInterface $container
+     * @return object
+     */
     public function getService(ContainerInterface $container): object
     {
         /** @var ConfigurationRepositoryInterface $configurationRepository */

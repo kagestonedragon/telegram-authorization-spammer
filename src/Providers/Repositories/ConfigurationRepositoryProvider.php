@@ -4,8 +4,8 @@ namespace Kagestonedragon\TelegramAuthorizationSpammer\Providers\Repositories;
 
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\AbstractProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepository;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\ContainerInterface;
 use Noodlehaus\Config;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class ConfigurationRepositoryProvider

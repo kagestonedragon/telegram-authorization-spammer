@@ -7,7 +7,7 @@ use Kagestonedragon\TelegramAuthorizationSpammer\Providers\AbstractProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Repositories\ConfigurationRepositoryProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepositoryInterface;
 use Kagestonedragon\TelegramAuthorizationSpammer\Services\Telegram\AuthorizationService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\ContainerInterface;
 
 /**
  * Class AuthorizationServiceProvider

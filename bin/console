@@ -2,33 +2,13 @@
 <?php
 
 use Symfony\Component\Console;
-use Symfony\Component\DependencyInjection;
 use Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands;
-use Kagestonedragon\TelegramAuthorizationSpammer\Utils;
-use Kagestonedragon\TelegramAuthorizationSpammer\Providers;
-use Kagestonedragon\TelegramAuthorizationSpammer\Repositories;
-use Kagestonedragon\TelegramAuthorizationSpammer\Services;
 
 require_once(dirname(__DIR__) . '/src/Bootstrap/bootstrap.php');
 
-$di = Utils\Di::getInstance();
-
-/** @var Repositories\ConfigurationRepositoryInterface $configurationRepository */
-$configurationRepository = $di->get(Providers\Repositories\ConfigurationRepositoryProvider::getId());
-
-/** @var Services\Telegram\AuthorizationServiceInterface $authorizationService */
-$authorizationService = $di->get(Providers\Services\Telegram\AuthorizationServiceProvider::getId());
-
-/** @var DependencyInjection\ContainerInterface $phoneFormattersContainer */
-$phoneFormattersContainer = $di->get(Providers\Formatters\PhoneFormattersProvider::getId());
-
 /** @var Console\Command\Command[] $commands */
 $commands = [
-    new Commands\Telegram\AuthorizationSpamCommand(
-        $configurationRepository,
-        $authorizationService,
-        $phoneFormattersContainer,
-    ),
+    new Commands\Telegram\AuthorizationSpamCommand(),
 ];
 
 $application = new Console\Application();

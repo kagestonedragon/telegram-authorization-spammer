@@ -3,17 +3,20 @@
 namespace Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands\Telegram;
 
 use Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands\AbstractCommand;
+use Kagestonedragon\TelegramAuthorizationSpammer\Factories\ReadersFactoryInterface;
 use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Exceptions\FormatterException;
 use Kagestonedragon\TelegramAuthorizationSpammer\Formatters\FormatterInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Factories\ReadersFactoryProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Formatters\PhoneFormattersProvider;
-use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepositoryInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Services\Telegram\AuthorizationServiceProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Services\Telegram\AuthorizationServiceInterface;
-use Kagestonedragon\TelegramAuthorizationSpammer\Utils\FileReader;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\ContainerInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\Manager;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Files\ReaderInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class AuthorizationSpamCommand
@@ -29,37 +32,17 @@ final class AuthorizationSpamCommand extends AbstractCommand
     /** @var AuthorizationServiceInterface $authorizationService */
     private AuthorizationServiceInterface $authorizationService;
 
-    /** @var ContainerInterface $phoneFormattersContainer */
-    private ContainerInterface $phoneFormattersContainer;
+    /** @var FormatterInterface $phonesFormatter */
+    private FormatterInterface $phonesFormatter;
 
-    /** @var FormatterInterface $phoneFormatter */
-    private FormatterInterface $phoneFormatter;
-
-    /** @var FileReader $phonesReader */
-    private FileReader $phonesReader;
+    /** @var ReaderInterface $phonesReader */
+    private ReaderInterface $phonesReader;
 
     /** @var string[] $userAgents */
     private array $userAgents = [];
 
     /** @var string[] $proxies */
     private array $proxies = [];
-
-    /**
-     * AuthorizationSpamCommand constructor.
-     * @param ConfigurationRepositoryInterface $configurationRepository
-     * @param AuthorizationServiceInterface $authorizationService
-     * @param ContainerInterface $phoneFormattersContainer
-     */
-    public function __construct(
-        ConfigurationRepositoryInterface $configurationRepository,
-        AuthorizationServiceInterface $authorizationService,
-        ContainerInterface $phoneFormattersContainer,
-    ) {
-        $this->authorizationService = $authorizationService;
-        $this->phoneFormattersContainer = $phoneFormattersContainer;
-
-        parent::__construct($configurationRepository);
-    }
 
     protected function configure()
     {
@@ -109,13 +92,12 @@ final class AuthorizationSpamCommand extends AbstractCommand
 
         $this->logger->info('Start of initialization');
 
-        /** @var FormatterInterface $phoneFormatter */
-        $phoneFormatter = $this->phoneFormattersContainer->get($input->getOption(self::COUNTRY_CODE_OPTION_CODE));
-
-        $this->phoneFormatter = $phoneFormatter;
-        $this->phonesReader = new FileReader($input->getOption(self::PHONES_LIST_OPTION_CODE));
-        $this->userAgents = (new FileReader($input->getOption(self::USER_AGENTS_LIST_OPTION_CODE)))->getLinesAsArray();
-        $this->proxies = (new FileReader($input->getOption(self::PROXIES_LIST_OPTION_CODE)))->getLinesAsArray();
+        $this
+            ->initializeAuthorizationService()
+            ->initializePhonesFormatter($input)
+            ->initializePhonesReader($input)
+            ->initializeUserAgents($input)
+            ->initializeProxies($input);
 
         $this->logger->info('End of initialization');
     }
@@ -154,7 +136,7 @@ final class AuthorizationSpamCommand extends AbstractCommand
         try {
             $this->logger->info(sprintf('Start of processing phone "%s"', $phone));
 
-            $normalizedPhone = $this->phoneFormatter->format($phone);
+            $normalizedPhone = $this->phonesFormatter->format($phone);
 
             $this->logger->info(sprintf('Normalized phone is "%s"', $normalizedPhone));
 
@@ -188,6 +170,77 @@ final class AuthorizationSpamCommand extends AbstractCommand
     private function getProxy(): ?string
     {
         return array_rand_value($this->proxies);
+    }
+
+    /**
+     * @return $this
+     */
+    private function initializeAuthorizationService(): self
+    {
+        $this->authorizationService = Manager::getInstance()->get(AuthorizationServiceProvider::getId());
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return $this
+     */
+    private function initializePhonesFormatter(InputInterface $input): self
+    {
+        /** @var ContainerInterface $phoneFormattersContainer */
+        $phoneFormattersContainer = Manager::getInstance()->get(PhoneFormattersProvider::getId());
+
+        $this->phonesFormatter = $phoneFormattersContainer
+            ->get($input->getOption(self::COUNTRY_CODE_OPTION_CODE));
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return $this
+     */
+    private function initializePhonesReader(InputInterface $input): self
+    {
+        /** @var ReadersFactoryInterface $readersFactory */
+        $readersFactory = Manager::getInstance()->get(ReadersFactoryProvider::getId());
+
+        $this->phonesReader = $readersFactory->create($input->getOption(self::PHONES_LIST_OPTION_CODE));
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return $this
+     */
+    private function initializeUserAgents(InputInterface $input): self
+    {
+        /** @var ReadersFactoryInterface $readersFactory */
+        $readersFactory = Manager::getInstance()->get(ReadersFactoryProvider::getId());
+
+        $this->userAgents = $readersFactory
+            ->create($input->getOption(self::USER_AGENTS_LIST_OPTION_CODE))
+            ->getLinesAsArray();
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return $this
+     */
+    private function initializeProxies(InputInterface $input): self
+    {
+        /** @var ReadersFactoryInterface $readersFactory */
+        $readersFactory = Manager::getInstance()->get(ReadersFactoryProvider::getId());
+
+        $this->proxies = $readersFactory
+            ->create($input->getOption(self::PROXIES_LIST_OPTION_CODE))
+            ->getLinesAsArray();
+
+        return $this;
     }
 
     /**

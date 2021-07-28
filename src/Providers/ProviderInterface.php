@@ -2,7 +2,7 @@
 
 namespace Kagestonedragon\TelegramAuthorizationSpammer\Providers;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\ContainerInterface;
 
 /**
  * Interface ProviderInterface

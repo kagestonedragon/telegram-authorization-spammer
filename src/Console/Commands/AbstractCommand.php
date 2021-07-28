@@ -4,8 +4,9 @@ namespace Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands;
 
 use Kagestonedragon\TelegramAuthorizationSpammer\Factories\LoggersFactoryInterface;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Factories\LoggersFactoryProvider;
+use Kagestonedragon\TelegramAuthorizationSpammer\Providers\Repositories\ConfigurationRepositoryProvider;
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepositoryInterface;
-use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\Manager;
 use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Loggers\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,13 +27,9 @@ abstract class AbstractCommand extends Command
     /** @var ConfigurationRepositoryInterface $configurationRepository */
     protected ConfigurationRepositoryInterface $configurationRepository;
 
-    /**
-     * AbstractCommand constructor.
-     * @param ConfigurationRepositoryInterface $configurationRepository
-     */
-    public function __construct(ConfigurationRepositoryInterface $configurationRepository)
+    public function __construct()
     {
-        $this->configurationRepository = $configurationRepository;
+        $this->initializeConfigurationRepository();
 
         parent::__construct();
     }
@@ -55,19 +52,31 @@ abstract class AbstractCommand extends Command
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
-        $this->logger = $this->getLoggerInstance($input->getOption(static::LOGGER_OPTION_CODE));
+        $this->initializeLogger($input);
     }
 
     /**
-     * @param string $name
-     * @return LoggerInterface
+     * @return $this
      */
-    private function getLoggerInstance(string $name): LoggerInterface
+    private function initializeConfigurationRepository(): self
+    {
+        $this->configurationRepository = Manager::getInstance()->get(ConfigurationRepositoryProvider::getId());
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return $this
+     */
+    private function initializeLogger(InputInterface $input): self
     {
         /** @var LoggersFactoryInterface $loggersFactory */
-        $loggersFactory = Di::getInstance()->get(LoggersFactoryProvider::getId());
+        $loggersFactory = Manager::getInstance()->get(LoggersFactoryProvider::getId());
 
-        return $loggersFactory->create($name);
+        $this->logger = $loggersFactory->create($input->getOption(static::LOGGER_OPTION_CODE));
+
+        return $this;
     }
 
     /**

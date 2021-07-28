@@ -5,6 +5,10 @@ namespace Kagestonedragon\TelegramAuthorizationSpammer\Utils\Loggers;
 use Monolog\Logger as BaseLogger;
 use Psr\Log\LogLevel;
 
+/**
+ * Class Logger
+ * @package Kagestonedragon\TelegramAuthorizationSpammer\Utils\Loggers
+ */
 class Logger extends BaseLogger implements LoggerInterface
 {
     /**

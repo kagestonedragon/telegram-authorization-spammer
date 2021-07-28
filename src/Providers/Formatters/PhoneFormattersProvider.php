@@ -4,9 +4,9 @@ namespace Kagestonedragon\TelegramAuthorizationSpammer\Providers\Formatters;
 
 use Kagestonedragon\TelegramAuthorizationSpammer\Formatters;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers\AbstractProvider;
-use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\ContainerInterface;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di\Manager;
 use League\ISO3166\ISO3166;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class PhoneFormattersProvider
@@ -22,7 +22,7 @@ class PhoneFormattersProvider extends AbstractProvider
      */
     public function getService(ContainerInterface $container): object
     {
-        $phoneFormattersContainer = Di::createInstance();
+        $phoneFormattersContainer = Manager::createInstance();
 
         foreach ($this->getMap() as $key => $value) {
             $phoneFormattersContainer->set($key, $value);
@@ -40,7 +40,7 @@ class PhoneFormattersProvider extends AbstractProvider
 
         return [
             static::DEFAULT_FORMATTER_ID =>
-                new Formatters\Phones\PhoneFormatter(),
+                new Formatters\Phones\BasePhoneFormatter(),
             $iso->name('Russian Federation')[$iso::KEY_ALPHA2] =>
                 new Formatters\Phones\RussianPhoneFormatter(),
         ];

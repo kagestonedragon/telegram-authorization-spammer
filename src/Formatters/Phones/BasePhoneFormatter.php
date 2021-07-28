@@ -6,7 +6,7 @@ namespace Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones;
  * Class PhoneFormatter
  * @package Kagestonedragon\TelegramAuthorizationSpammer\Formatters\Phones
  */
-class PhoneFormatter extends AbstractPhoneFormatter
+class BasePhoneFormatter extends AbstractPhoneFormatter
 {
     /**
      * @param mixed $value
