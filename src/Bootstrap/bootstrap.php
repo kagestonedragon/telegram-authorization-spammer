@@ -16,3 +16,8 @@ require_once($root . '/src/Bootstrap/env.php');
  * Di
  */
 require_once($root . '/src/Bootstrap/di.php');
+
+/**
+ * Functions
+ */
+require_once($root . '/src/Bootstrap/functions.php');
