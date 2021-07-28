@@ -8,5 +8,11 @@ namespace Kagestonedragon\TelegramAuthorizationSpammer\Services\Telegram;
  */
 interface AuthorizationServiceInterface
 {
-    public function authorize(string $phone, ?string $userAgent = null): bool;
+    /**
+     * @param string $phone
+     * @param string|null $userAgent
+     * @param string|null $proxy
+     * @return bool
+     */
+    public function authorize(string $phone, ?string $userAgent, ?string $proxy): bool;
 }

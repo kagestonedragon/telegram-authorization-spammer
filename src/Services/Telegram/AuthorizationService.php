@@ -2,7 +2,7 @@
 
 namespace Kagestonedragon\TelegramAuthorizationSpammer\Services\Telegram;
 
-use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp;
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories\ConfigurationRepositoryInterface;
 use Kagestonedragon\TelegramAuthorizationSpammer\Exceptions\RuntimeException;
 
@@ -15,17 +15,17 @@ class AuthorizationService implements AuthorizationServiceInterface
     /** @var ConfigurationRepositoryInterface $configurationRepository */
     protected ConfigurationRepositoryInterface $configurationRepository;
 
-    /** @var GuzzleClient $guzzleClient */
-    protected GuzzleClient $guzzleClient;
+    /** @var GuzzleHttp\Client $guzzleClient */
+    protected GuzzleHttp\Client $guzzleClient;
 
     /**
      * AuthorizationService constructor.
      * @param ConfigurationRepositoryInterface $configurationRepository
-     * @param GuzzleClient $guzzleClient
+     * @param GuzzleHttp\Client $guzzleClient
      */
     public function __construct(
         ConfigurationRepositoryInterface $configurationRepository,
-        GuzzleClient $guzzleClient,
+        GuzzleHttp\Client $guzzleClient,
     ) {
         $this->configurationRepository = $configurationRepository;
         $this->guzzleClient = $guzzleClient;
@@ -34,14 +34,15 @@ class AuthorizationService implements AuthorizationServiceInterface
     /**
      * @param string $phone
      * @param string|null $userAgent
+     * @param string|null $proxy
      * @return bool
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleHttp\Exception\GuzzleException
      */
-    public function authorize(string $phone, ?string $userAgent = null): bool
+    public function authorize(string $phone, ?string $userAgent, ?string $proxy): bool
     {
         $response = $this->guzzleClient->post(
             $this->configurationRepository->get('telegram.url'),
-            $this->getRequestOptions($phone, $userAgent)
+            $this->getRequestOptions($phone, $userAgent, $proxy)
         );
 
         if ($response->getStatusCode() !== 200) {
@@ -60,24 +61,29 @@ class AuthorizationService implements AuthorizationServiceInterface
     /**
      * @param string $phone
      * @param string|null $userAgent
+     * @param string|null $proxy
      * @return array
      */
-    protected function getRequestOptions(string $phone, ?string $userAgent = null): array
+    protected function getRequestOptions(string $phone, ?string $userAgent, ?string $proxy): array
     {
         $options = [
-            'query' => [
+            GuzzleHttp\RequestOptions::QUERY => [
                 'bot_id' => $this->configurationRepository->get('telegram.bot.id'),
                 'origin' => $this->configurationRepository->get('telegram.bot.domain'),
                 'embed' => 1,
                 'request_access' => 'write',
             ],
-            'form_params' => [
+            GuzzleHttp\RequestOptions::FORM_PARAMS => [
                 'phone' => $phone,
             ],
         ];
 
-        if (!empty($userAgent)) {
-            $options['headers']['User-Agent'] = $userAgent;
+        if ($userAgent !== null) {
+            $options[GuzzleHttp\RequestOptions::HEADERS]['User-Agent'] = $userAgent;
+        }
+
+        if ($proxy !== null) {
+            $options[GuzzleHttp\RequestOptions::PROXY] = $proxy;
         }
 
         return $options;

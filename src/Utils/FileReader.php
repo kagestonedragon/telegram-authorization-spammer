@@ -29,6 +29,22 @@ final class FileReader
     }
 
     /**
+     * @return array
+     */
+    public function getLinesAsArray(): array
+    {
+        $result = [];
+
+        while ($line = $this->getLine()) {
+            $result[] = $line;
+        }
+
+        fseek($this->resource, 0, SEEK_SET);
+
+        return $result;
+    }
+
+    /**
      * @param string $file
      * @return resource
      */

@@ -9,6 +9,7 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -18,6 +19,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractCommand extends Command
 {
     protected const LOGGER = 'console';
+
+    protected const LOGGER_OPTION_CODE = 'logger';
 
     /** @var LoggerInterface $logger */
     protected LoggerInterface $logger;
@@ -31,9 +34,20 @@ abstract class AbstractCommand extends Command
      */
     public function __construct(ConfigurationRepositoryInterface $configurationRepository)
     {
-        parent::__construct();
-
         $this->configurationRepository = $configurationRepository;
+
+        parent::__construct();
+    }
+
+    protected function configure()
+    {
+        $this
+            ->addOption(
+                static::LOGGER_OPTION_CODE,
+                'l',
+                InputOption::VALUE_OPTIONAL,
+                'Custom logger',
+            );
     }
 
     /**
@@ -51,11 +65,9 @@ abstract class AbstractCommand extends Command
      */
     private function getLogger(InputInterface $input): LoggerInterface
     {
-        $value = $input->getOption('logger');
+        $name = $input->getOption(static::LOGGER_OPTION_CODE) ?? static::LOGGER;
 
-        $settings = $this->configurationRepository->get(
-            sprintf("loggers.%s", !empty($value) ? $value : static::LOGGER)
-        );
+        $settings = $this->configurationRepository->get(sprintf("loggers.%s", $name));
 
         $logger = new Logger($settings['name']);
 

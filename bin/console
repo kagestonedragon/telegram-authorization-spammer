@@ -4,21 +4,23 @@
 use Symfony\Component\Console;
 use Symfony\Component\DependencyInjection;
 use Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands;
-use Kagestonedragon\TelegramAuthorizationSpammer\Utils\Di;
+use Kagestonedragon\TelegramAuthorizationSpammer\Utils;
 use Kagestonedragon\TelegramAuthorizationSpammer\Providers;
 use Kagestonedragon\TelegramAuthorizationSpammer\Repositories;
 use Kagestonedragon\TelegramAuthorizationSpammer\Services;
 
 require_once(dirname(__DIR__) . '/src/Bootstrap/bootstrap.php');
 
+$di = Utils\Di::getInstance();
+
 /** @var Repositories\ConfigurationRepositoryInterface $configurationRepository */
-$configurationRepository = Di::getInstance()->get(Providers\Repositories\ConfigurationRepositoryProvider::getId());
+$configurationRepository = $di->get(Providers\Repositories\ConfigurationRepositoryProvider::getId());
 
 /** @var Services\Telegram\AuthorizationServiceInterface $authorizationService */
-$authorizationService = Di::getInstance()->get(Providers\Services\Telegram\AuthorizationServiceProvider::getId());
+$authorizationService = $di->get(Providers\Services\Telegram\AuthorizationServiceProvider::getId());
 
 /** @var DependencyInjection\ContainerInterface $phoneFormattersContainer */
-$phoneFormattersContainer = Di::getInstance()->get(Providers\Formatters\PhoneFormattersProvider::getId());
+$phoneFormattersContainer = $di->get(Providers\Formatters\PhoneFormattersProvider::getId());
 
 /** @var Console\Command\Command[] $commands */
 $commands = [

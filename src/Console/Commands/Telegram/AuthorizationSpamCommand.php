@@ -11,35 +11,44 @@ use Kagestonedragon\TelegramAuthorizationSpammer\Services\Telegram\Authorization
 use Kagestonedragon\TelegramAuthorizationSpammer\Utils\FileReader;
 use Kagestonedragon\TelegramAuthorizationSpammer\Utils\LoggerHelper;
 use Psr\Log\LogLevel;
-use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
  * Class AuthorizationSpamCommand
  * @package Kagestonedragon\TelegramAuthorizationSpammer\Console\Commands\Telegram
  */
-class AuthorizationSpamCommand extends AbstractCommand
+final class AuthorizationSpamCommand extends AbstractCommand
 {
     protected const LOGGER = 'telegram';
 
+    private const PHONES_LIST_OPTION_CODE = 'phones_list';
+    private const USER_AGENTS_LIST_OPTION_CODE = 'user_agents_list';
+    private const PROXIES_LIST_OPTION_CODE = 'proxies_list';
+    private const COUNTRY_CODE_OPTION_CODE = 'country_code';
+
     /** @var AuthorizationServiceInterface $authorizationService */
-    protected AuthorizationServiceInterface $authorizationService;
+    private AuthorizationServiceInterface $authorizationService;
 
     /** @var ContainerInterface $phoneFormattersContainer */
-    protected ContainerInterface $phoneFormattersContainer;
+    private ContainerInterface $phoneFormattersContainer;
 
     /** @var FormatterInterface $phoneFormatter */
-    protected FormatterInterface $phoneFormatter;
+    private FormatterInterface $phoneFormatter;
 
     /** @var FileReader $phonesReader */
-    protected FileReader $phonesReader;
+    private FileReader $phonesReader;
+
+    /** @var string[] $userAgents */
+    private array $userAgents = [];
+
+    /** @var string[] $proxies */
+    private array $proxies = [];
 
     /**
-     * AuthorizationCommand constructor.
+     * AuthorizationSpamCommand constructor.
      * @param ConfigurationRepositoryInterface $configurationRepository
      * @param AuthorizationServiceInterface $authorizationService
      * @param ContainerInterface $phoneFormattersContainer
@@ -49,41 +58,47 @@ class AuthorizationSpamCommand extends AbstractCommand
         AuthorizationServiceInterface $authorizationService,
         ContainerInterface $phoneFormattersContainer,
     ) {
-        parent::__construct($configurationRepository);
-
         $this->authorizationService = $authorizationService;
         $this->phoneFormattersContainer = $phoneFormattersContainer;
+
+        parent::__construct($configurationRepository);
     }
 
     protected function configure()
     {
+        parent::configure();
+
         $this
-            ->setName('telegram:authorization_spam')
-            ->setDescription('Spam')
+            ->setName('telegram:authorization_spammer')
+            ->setDescription('Sending authorization messages to users from Telegram with your domain.')
             ->setHelp('https://github.com/kagestonedragon/telegram-authorization-spammer')
             ->addOption(
-                'country',
-                'c',
+                self::COUNTRY_CODE_OPTION_CODE,
+                'cc',
                 InputOption::VALUE_REQUIRED,
                 'County code (ISO-3166 Alpha 2)',
+                PhoneFormattersProvider::DEFAULT_FORMATTER_ID
             )
             ->addOption(
-                'phones',
-                'p',
-                InputOption::VALUE_REQUIRED,
-                'Path to file with phones list'
-            )
-            ->addOption(
-                'user_agents',
-                'ua',
+                self::PHONES_LIST_OPTION_CODE,
+                'phl',
                 InputOption::VALUE_OPTIONAL,
-                'Path to file with user agent list'
+                'Path to file with phones list',
+                $this->configurationRepository->get('telegram.command.default_phones_list'),
             )
             ->addOption(
-                'logger',
-                'l',
+                self::USER_AGENTS_LIST_OPTION_CODE,
+                'ual',
                 InputOption::VALUE_OPTIONAL,
-                'Custom logger'
+                'Path to file with user agent list',
+                $this->configurationRepository->get('telegram.command.default_user_agents_list'),
+            )
+            ->addOption(
+                self::PROXIES_LIST_OPTION_CODE,
+                'prl',
+                InputOption::VALUE_OPTIONAL,
+                'Path to file with proxies list',
+                $this->configurationRepository->get('telegram.command.default_proxies_list'),
             );
     }
 
@@ -97,8 +112,13 @@ class AuthorizationSpamCommand extends AbstractCommand
 
         $this->logger->info('Start of initialization');
 
-        $this->phoneFormatter = $this->getPhoneFormatter($input);
-        $this->phonesReader = $this->getPhonesReader($input);
+        /** @var FormatterInterface $phoneFormatter */
+        $phoneFormatter = $this->phoneFormattersContainer->get($input->getOption(self::COUNTRY_CODE_OPTION_CODE));
+
+        $this->phoneFormatter = $phoneFormatter;
+        $this->phonesReader = new FileReader($input->getOption(self::PHONES_LIST_OPTION_CODE));
+        $this->userAgents = (new FileReader($input->getOption(self::USER_AGENTS_LIST_OPTION_CODE)))->getLinesAsArray();
+        $this->proxies = (new FileReader($input->getOption(self::PROXIES_LIST_OPTION_CODE)))->getLinesAsArray();
 
         $this->logger->info('End of initialization');
     }
@@ -123,16 +143,16 @@ class AuthorizationSpamCommand extends AbstractCommand
         } catch (\Throwable $t) {
             LoggerHelper::logException($this->logger, $t);
 
-            return static::FAILURE;
+            return self::FAILURE;
         }
 
-        return static::SUCCESS;
+        return self::SUCCESS;
     }
 
     /**
      * @param string $phone
      */
-    protected function process(string $phone): void
+    private function process(string $phone): void
     {
         try {
             $this->logger->info(sprintf('Start of processing phone "%s"', $phone));
@@ -143,7 +163,11 @@ class AuthorizationSpamCommand extends AbstractCommand
 
             $this->logger->info('Authorization attempt');
 
-            $this->authorizationService->authorize($normalizedPhone, $this->getRandomUserAgent());
+            $this->authorizationService->authorize(
+                $normalizedPhone,
+                $this->getUserAgent(),
+                $this->getProxy(),
+            );
 
             $this->logger->info('Success authorization');
 
@@ -154,54 +178,18 @@ class AuthorizationSpamCommand extends AbstractCommand
     }
 
     /**
-     * TODO
      * @return string|null
      */
-    private function getRandomUserAgent(): ?string
+    private function getUserAgent(): ?string
     {
-        return null;
+        return array_rand_value($this->userAgents);
     }
 
     /**
-     * @param InputInterface $input
-     * @return FormatterInterface
+     * @return string|null
      */
-    private function getPhoneFormatter(InputInterface $input): FormatterInterface
+    private function getProxy(): ?string
     {
-        try {
-            $value = $input->getOption('country');
-
-            if (empty($value)) {
-                throw new ServiceNotFoundException(PhoneFormattersProvider::getId());
-            }
-
-            /** @var FormatterInterface $formatter */
-            $formatter = $this->phoneFormattersContainer->get($value);
-        } catch (ServiceNotFoundException) {
-            $formatter = $this->phoneFormattersContainer->get(PhoneFormattersProvider::DEFAULT_FORMATTER_ID);
-        }
-
-        $this->logger->info(sprintf('Formatting phones with "%s"', $formatter::class));
-
-        return $formatter;
-    }
-
-    /**
-     * @param InputInterface $input
-     * @return FileReader
-     */
-    private function getPhonesReader(InputInterface $input): FileReader
-    {
-        $value = $input->getOption('phones');
-
-        if (empty($value)) {
-            throw new InvalidOptionException('Invalid option value "phones"');
-        }
-
-        $reader = new FileReader($value);
-
-        $this->logger->info(sprintf('Reading phones from "%s"', $value));
-
-        return $reader;
+        return array_rand_value($this->proxies);
     }
 }
