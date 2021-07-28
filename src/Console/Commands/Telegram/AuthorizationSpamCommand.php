@@ -90,16 +90,12 @@ final class AuthorizationSpamCommand extends AbstractCommand
     {
         parent::initialize($input, $output);
 
-        $this->logger->info('Start of initialization');
-
         $this
             ->initializeAuthorizationService()
             ->initializePhonesFormatter($input)
             ->initializePhonesReader($input)
             ->initializeUserAgents($input)
             ->initializeProxies($input);
-
-        $this->logger->info('End of initialization');
     }
 
     /**
